@@ -39,5 +39,5 @@ jobs:
         with:
           name: FreeVisuals-All-Files
           path: |
-            **/build/
-            build/
+            .\**\build\
+            .\*
