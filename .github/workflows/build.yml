@@ -23,6 +23,9 @@ jobs:
         with:
           gradle-version: '7.1.1'
 
+      - name: Fix Missing Gradle Wrapper
+        run: gradle wrapper --gradle-version 7.1.1
+
       - name: Build Fabric Mod
         run: .\gradlew.bat remapJar
 
@@ -30,3 +33,4 @@ jobs:
         with:
           name: Fabric-Mod-Jar
           path: "**/build/libs/*.jar"
+
