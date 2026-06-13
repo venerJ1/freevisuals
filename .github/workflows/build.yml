@@ -8,12 +8,10 @@ jobs:
       - name: Extract zip
         run: |
           unzip mod_build.zip
-          if [ -d "mod_build" ]; then
-            mv mod_build/* . || true
-            mv mod_build/.* . || true
-          fi
-          SUBDIR=$(find . -maxdepth 2 -name "build.gradle" -exec dirname {} \;)
+          # Ищем, где лежит build.gradle, и переносим всё оттуда в корень
+          SUBDIR=$(find . -name "build.gradle" -exec dirname {} \; | head -n 1)
           if [ "$SUBDIR" != "." ] && [ -n "$SUBDIR" ]; then
+            echo "Файлы найдены в папке: $SUBDIR"
             mv $SUBDIR/* . || true
             mv $SUBDIR/.* . || true
           fi
@@ -27,4 +25,3 @@ jobs:
         with:
           name: Fabric-Mod-Jar
           path: "**/build/libs/*.jar"
-
