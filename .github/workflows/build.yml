@@ -17,6 +17,50 @@ jobs:
               copy-item mod_build\* . -Recurse -Force -ErrorAction SilentlyContinue
           }
 
+      - name: Overwrite build.gradle with Fixes
+        run: |
+          $config = @"
+          buildscript {
+              repositories {
+                  maven { url = "https://fabricmc.net" }
+                  mavenCentral()
+              }
+              dependencies {
+                  classpath "net.fabricmc:fabric-loom:0.8-build.16"
+              }
+          }
+          plugins {
+              id 'fabric-loom' version '0.8-build.16'
+          }
+          version = '1.0.0'
+          group = 'com.freevisuals'
+          repositories {
+              maven { url = "https://fabricmc.net" }
+              mavenCentral()
+          }
+          dependencies {
+              minecraft "com.mojang:minecraft:1.17.1"
+              mappings "net.fabricmc:yarn:1.17.1+build.62:v2"
+              modImplementation "net.fabricmc:fabric-loader:0.11.7"
+          }
+          processResources {
+              inputs.property "version", project.version
+              filesMatching("fabric.mod.json") {
+                  expand "version": project.version
+              }
+          }
+          tasks.withType(JavaCompile).configureEach {
+              options.release = 16
+          }
+          java {
+              withSourcesJar()
+          }
+          jar {
+              from "LICENSE"
+          }
+          "@
+          Set-Content -Path build.gradle -Value $config -Encoding UTF8
+
       - name: Setup Java 16
         uses: actions/setup-java@v4
         with:
@@ -32,12 +76,13 @@ jobs:
         run: gradle wrapper --gradle-version 7.1.1
 
       - name: Build Mod
-        run: .\gradlew.bat build --no-daemon
+        run: .\gradlew.bat remapJar --no-daemon
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FreeVisuals-1.17.1
+          name: FreeVisuals-Mod-Jar
           path: |
-            D:\a\freevisuals\freevisuals\**\*.jar
-            **\build\libs\*.jar
+            **/build/libs/*.jar
+            build/libs/*.jar
+
