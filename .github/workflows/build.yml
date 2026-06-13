@@ -23,22 +23,10 @@ jobs:
         with:
           gradle-version: '7.1.1'
 
-      - name: Build with Gradle
-        run: |
-          # Запускаем строго из корня, где лежат настройки и settings.gradle
-          gradle build
+      - name: Build Fabric Mod
+        run: gradle remapJar
 
-      - name: Upload Mod to File.io
-        run: |
-          $file = Get-ChildItem -Recurse -Filter "*.jar" | Where-Object { $_.FullName -like "*build\libs*" -and $_.FullName -notlike "*-dev.jar" -and $_.FullName -notlike "*-sources.jar" } | Select-Object -First 1
-          if ($file) {
-              $response = curl.exe -F "file=@$($file.FullName)" https://file.io
-              echo "----------------------------------------"
-              echo "ВАША ССЫЛКА НА СКАЧИВАНИЕ МОДА:"
-              echo $response
-              echo "----------------------------------------"
-          } else {
-              echo "Файл .jar не найден."
-              Get-ChildItem -Recurse -Filter "*.jar" | Select-Object FullName
-          }
-
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Fabric-Mod-Jar
+          path: "**/build/libs/*.jar"
