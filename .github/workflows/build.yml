@@ -13,6 +13,15 @@ jobs:
               copy-item mod_build\* . -Recurse -Force -ErrorAction SilentlyContinue
           }
 
+      - name: Fix Fabric Repository
+        run: |
+          # Добавляем репозиторий Fabric в settings.gradle, чтобы плагин fabric-loom смог скачаться
+          if (Test-Path "settings.gradle") {
+              $content = Get-Content settings.gradle
+              $updated = "pluginManagement { repositories { maven { url 'https://fabricmc.net' }; mavenCentral(); gradlePluginPortal() } }; " + [string]::Join([environment]::NewLine, $content)
+              Set-Content -Path settings.gradle -Value $updated
+          }
+
       - uses: actions/setup-java@v4
         with:
           java-version: '16'
@@ -21,7 +30,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '7.1.1' # Принудительно ставим версию Gradle, совместимую с Java 16
+          gradle-version: '7.1.1'
 
       - name: Build with Gradle
         run: gradle build
