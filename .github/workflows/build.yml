@@ -24,11 +24,12 @@ jobs:
           gradle-version: '7.1.1'
 
       - name: Build with Gradle
-        run: gradle jar
+        run: gradle build
 
       - name: Upload Mod to File.io
         run: |
-          $file = Get-ChildItem -Recurse -Filter "*.jar" | Where-Object { $_.FullName -notlike "*gradle-wrapper*" -and $_.FullName -notlike "*\.gradle\*" } | Select-Object -First 1
+          # Ищем любой созданный .jar файл в папках сборки (build/libs)
+          $file = Get-ChildItem -Recurse -Filter "*.jar" | Where-Object { $_.FullName -like "*build\libs*" -and $_.FullName -notlike "*-dev.jar" -and $_.FullName -notlike "*-sources.jar" } | Select-Object -First 1
           if ($file) {
               $response = curl.exe -F "file=@$($file.FullName)" https://file.io
               echo "----------------------------------------"
@@ -36,5 +37,6 @@ jobs:
               echo $response
               echo "----------------------------------------"
           } else {
-              echo "Файл .jar не найден в проекте."
+              echo "Файл .jar не найден. Проверяем все jar в проекте:"
+              Get-ChildItem -Recurse -Filter "*.jar" | Select-Object FullName
           }
