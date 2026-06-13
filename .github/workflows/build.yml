@@ -13,6 +13,11 @@ jobs:
               move-item mod_build\* . -ErrorAction SilentlyContinue
           }
 
+      - name: Fix missing Gradle Wrapper Jar
+        run: |
+          New-Item -ItemType Directory -Force -Path "gradle\wrapper"
+          Invoke-WebRequest -Uri "https://github.com" -OutFile "gradle\wrapper\gradle-wrapper.jar"
+
       - uses: actions/setup-java@v4
         with:
           java-version: '16'
