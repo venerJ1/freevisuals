@@ -13,15 +13,6 @@ jobs:
               copy-item mod_build\* . -Recurse -Force -ErrorAction SilentlyContinue
           }
 
-      - name: Fix Fabric Repository
-        run: |
-          # Добавляем репозиторий Fabric в settings.gradle, чтобы плагин fabric-loom смог скачаться
-          if (Test-Path "settings.gradle") {
-              $content = Get-Content settings.gradle
-              $updated = "pluginManagement { repositories { maven { url 'https://fabricmc.net' }; mavenCentral(); gradlePluginPortal() } }; " + [string]::Join([environment]::NewLine, $content)
-              Set-Content -Path settings.gradle -Value $updated
-          }
-
       - uses: actions/setup-java@v4
         with:
           java-version: '16'
@@ -35,10 +26,13 @@ jobs:
       - name: Build with Gradle
         run: gradle build
 
+      - name: Locate and Copy Mod Jar
+        run: |
+          # Находим готовый мод (игнорируя системный gradle-wrapper) и копируем в корень
+          Get-ChildItem -Recurse -Filter "*.jar" | Where-Object { $_.FullName -notlike "*gradle-wrapper*" -and $_.FullName -notlike "*\.gradle\*" } | Copy-Item -Destination .
+          Get-ChildItem *.jar
+
       - uses: actions/upload-artifact@v4
         with:
           name: Fabric-Mod-Jar
-          path: "build/"
-
-
-
+          path: "*.jar"
