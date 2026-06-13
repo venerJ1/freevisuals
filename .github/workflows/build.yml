@@ -8,20 +8,18 @@ jobs:
       - name: Extract zip
         run: |
           unzip mod_build.zip
-          # Ищем, где лежит build.gradle, и переносим всё оттуда в корень
-          SUBDIR=$(find . -name "build.gradle" -exec dirname {} \; | head -n 1)
-          if [ "$SUBDIR" != "." ] && [ -n "$SUBDIR" ]; then
-            echo "Файлы найдены в папке: $SUBDIR"
-            mv $SUBDIR/* . || true
-            mv $SUBDIR/.* . || true
-          fi
+          cp -r */* . 2>/dev/null || true
+          cp -r */.* . 2>/dev/null || true
       - uses: actions/setup-java@v4
         with:
           java-version: '16'
           distribution: 'temurin'
-      - run: chmod +x gradlew
-      - run: ./gradlew build
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build with Gradle
+        run: gradle build
       - uses: actions/upload-artifact@v4
         with:
           name: Fabric-Mod-Jar
           path: "**/build/libs/*.jar"
+
