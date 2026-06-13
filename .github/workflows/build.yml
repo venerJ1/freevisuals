@@ -6,7 +6,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Extract zip
-        run: unzip mod_build.zip && mv mod_build/* . || true
+        run: |
+          unzip mod_build.zip
+          if [ -d "mod_build" ]; then
+            mv mod_build/* . || true
+            mv mod_build/.* . || true
+          fi
+          # Если файлы оказались ещё глубже в подпапке
+          SUBDIR=$(find . -maxdepth 2 -name "build.gradle" -exec dirname {} \;)
+          if [ "$SUBDIR" != "." ] && [ ! -empty "$SUBDIR" ]; then
+            mv $SUBDIR/* . || true
+            mv $SUBDIR/.* . || true
+          fi
       - uses: actions/setup-java@v4
         with:
           java-version: '16'
@@ -16,4 +27,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Fabric-Mod-Jar
-          path: build/libs/*.jar
+          path: "**/build/libs/*.jar"
