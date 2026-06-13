@@ -1,0 +1,19 @@
+name: Build Fabric Mod From Zip
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract zip
+        run: unzip mod_build.zip && mv mod_build/* . || true
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '16'
+          distribution: 'temurin'
+      - run: chmod +x gradlew
+      - run: ./gradlew build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Fabric-Mod-Jar
+          path: build/libs/*.jar
