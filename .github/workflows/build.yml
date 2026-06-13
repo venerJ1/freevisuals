@@ -38,5 +38,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Fabric-Mod-Jar
-          path: "mod_build/build/libs/*.jar"
+          path: "build/libs/*.jar"
+
 
