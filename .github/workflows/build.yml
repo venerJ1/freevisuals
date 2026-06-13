@@ -9,9 +9,9 @@ jobs:
       - name: Extract zip
         run: |
           Expand-Archive -Path mod_build.zip -DestinationPath . -Force
-          # Выводим структуру папок, чтобы увидеть, где лежит build.gradle
-          echo "СТРУКТУРА ПАПОК ПОСЛЕ РАСПАКОВКИ:"
-          Get-ChildItem -Recurse -Filter "build.gradle" | Select-Object FullName
+          if (Test-Path "mod_build") {
+              copy-item mod_build\* . -Recurse -Force -ErrorAction SilentlyContinue
+          }
 
       - uses: actions/setup-java@v4
         with:
@@ -25,16 +25,8 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          # Ищем, в какой папке лежит build.gradle, и запускаем сборку именно там
-          $gradleFile = Get-ChildItem -Recurse -Filter "build.gradle" | Select-Object -First 1
-          if ($gradleFile) {
-              $projectDir = $gradleFile.Directory.FullName
-              echo "Запуск сборки в папке: $projectDir"
-              cd $projectDir
-              gradle build
-          } else {
-              echo "Критическая ошибка: файл build.gradle не найден в архиве!"
-          }
+          # Запускаем строго из корня, где лежат настройки и settings.gradle
+          gradle build
 
       - name: Upload Mod to File.io
         run: |
@@ -46,5 +38,7 @@ jobs:
               echo $response
               echo "----------------------------------------"
           } else {
-              echo "Файл .jar всё ещё не найден."
+              echo "Файл .jar не найден."
+              Get-ChildItem -Recurse -Filter "*.jar" | Select-Object FullName
           }
+
