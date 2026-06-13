@@ -1,38 +1,37 @@
-name: Build Fabric Mod From Zip
-on: [push, workflow_dispatch]
+```yaml
+name: Build Fabric Mod
+
+on:
+  push:
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Extract zip
-        run: |
-          Expand-Archive -Path mod_build.zip -DestinationPath . -Force
-          if (Test-Path "mod_build") {
-              copy-item mod_build\* . -Recurse -Force -ErrorAction SilentlyContinue
-          }
-
-      - uses: actions/setup-java@v4
+      - name: Setup Java 16
+        uses: actions/setup-java@v4
         with:
-          java-version: '16'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 16
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '7.1.1'
+          gradle-version: 7.1.1
 
-      - name: Fix Missing Gradle Wrapper
+      - name: Generate Wrapper
         run: gradle wrapper --gradle-version 7.1.1
 
-      - name: Build Fabric Mod
-        run: .\gradlew.bat build --no-daemon
+      - name: Build Mod
+        run: .\gradlew.bat remapJar --no-daemon
 
-      - name: Upload Artifacts
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Fabric-Mod-Jar
-          path: |
-            **/build/libs/*.jar
-            build/libs/*.jar
+          name: FreeVisuals-1.17.1
+          path: build/libs/*.jar
