@@ -29,9 +29,9 @@ jobs:
                   classpath "net.fabricmc:fabric-loom:0.8.16"
               }
           }
-          plugins {
-              id 'fabric-loom'
-          }
+          
+          apply plugin: 'fabric-loom'
+          
           version = '1.0.0'
           group = 'com.freevisuals'
           repositories {
