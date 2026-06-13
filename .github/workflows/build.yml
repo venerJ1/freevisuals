@@ -12,9 +12,8 @@ jobs:
             mv mod_build/* . || true
             mv mod_build/.* . || true
           fi
-          # Если файлы оказались ещё глубже в подпапке
           SUBDIR=$(find . -maxdepth 2 -name "build.gradle" -exec dirname {} \;)
-          if [ "$SUBDIR" != "." ] && [ ! -empty "$SUBDIR" ]; then
+          if [ "$SUBDIR" != "." ] && [ -n "$SUBDIR" ]; then
             mv $SUBDIR/* . || true
             mv $SUBDIR/.* . || true
           fi
@@ -28,3 +27,4 @@ jobs:
         with:
           name: Fabric-Mod-Jar
           path: "**/build/libs/*.jar"
+
