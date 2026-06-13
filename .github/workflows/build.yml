@@ -1,6 +1,4 @@
-```yaml
 name: Build Fabric Mod
-
 on:
   push:
   workflow_dispatch:
@@ -8,15 +6,21 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Extract zip
+        run: |
+          Expand-Archive -Path mod_build.zip -DestinationPath . -Force
+          if (Test-Path "mod_build") {
+              copy-item mod_build\* . -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
       - name: Setup Java 16
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: 16
 
       - name: Setup Gradle
@@ -34,4 +38,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: FreeVisuals-1.17.1
-          path: build/libs/*.jar
+          path: |
+            D:\a\freevisuals\freevisuals\**\build\libs\*.jar
+            **/build/libs/*.jar
