@@ -27,10 +27,12 @@ jobs:
         run: gradle wrapper --gradle-version 7.1.1
 
       - name: Build Fabric Mod
-        run: .\gradlew.bat remapJar
+        run: .\gradlew.bat build --no-daemon
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: Fabric-Mod-Jar
-          path: "**/build/libs/*.jar"
-
+          path: |
+            **/build/libs/*.jar
+            build/libs/*.jar
