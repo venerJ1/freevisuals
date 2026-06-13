@@ -17,8 +17,20 @@ jobs:
               copy-item mod_build\* . -Recurse -Force -ErrorAction SilentlyContinue
           }
 
-      - name: Fix Fabric Loom Version
+      - name: Fix Settings and Build Files
         run: |
+          $settings = @"
+          pluginManagement {
+              repositories {
+                  maven { url = "https://fabricmc.net" }
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          rootProject.name = 'freevisuals'
+          "@
+          Set-Content -Path settings.gradle -Value $settings -Encoding UTF8
+          
           (Get-Content build.gradle) -replace "0.8-SNAPSHOT", "0.8.16" | Set-Content build.gradle
           (Get-Content build.gradle) -replace "0.8-build.16", "0.8.16" | Set-Content build.gradle
 
